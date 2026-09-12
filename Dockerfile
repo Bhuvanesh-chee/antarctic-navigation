@@ -18,7 +18,7 @@ USER user
 
 EXPOSE 7860
 
-# Entrypoint seeds the DB on first boot, then runs uvicorn
+# Entrypoint reads PORT env (Render sets PORT; defaults to 7860)
 COPY backend/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

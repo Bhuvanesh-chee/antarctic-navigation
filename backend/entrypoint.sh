@@ -34,4 +34,4 @@ fi
 # Start the app
 cd "$APP_DIR"
 export PYTHONPATH="$APP_DIR"
-exec uvicorn app.main:app --host 0.0.0.0 --port 7860
+exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}
