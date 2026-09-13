@@ -701,6 +701,9 @@ async def upload_data(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Could not read file: {e}")
 
+    if len(contents) > 5_000_000:
+        raise HTTPException(status_code=413, detail="File too large (5 MB limit).")
+
     try:
         df = pd.read_csv(io.StringIO(contents))
     except Exception as e:
