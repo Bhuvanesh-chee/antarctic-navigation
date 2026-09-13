@@ -3,7 +3,7 @@
 # Ephemeral disk: seeds SQLite DB + iceberg catalog on every boot if missing.
 set -e
 
-APP_DIR="/home/user/app"
+APP_DIR="/home/user/app/backend"
 DB_PATH="$APP_DIR/iceberg_catalog.db"
 
 echo "[entrypoint] Starting Antarctic Navigation Space…"
