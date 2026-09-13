@@ -1,2 +1,0 @@
-backend/iceberg_catalog.db filter=lfs diff=lfs merge=lfs -text
-backend/models/*.json filter=lfs diff=lfs merge=lfs -text
