@@ -10,7 +10,7 @@ const ANTARCTICA_VIEW = {
   center: [ -72, 0 ],
   zoom: 3,
   minZoom: 2,
-  maxZoom: 8,
+  maxZoom: 18,
 };
 
 function makeIcon(color: string, label?: string): L.DivIcon {
