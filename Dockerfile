@@ -19,7 +19,6 @@ USER user
 EXPOSE 7860
 
 # Entrypoint reads PORT env (Render sets PORT; defaults to 7860)
-COPY backend/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY --chmod=755 backend/entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 CMD []
