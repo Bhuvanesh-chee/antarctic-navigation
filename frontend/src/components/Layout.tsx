@@ -96,7 +96,7 @@ export default function Layout({ children }: { children?: React.ReactNode }) {
           </div>
         </header>
         <main className="flex-1 overflow-auto p-4 bg-polar-950">
-          <Outlet />
+          {children ?? <Outlet />}
         </main>
       </div>
     </div>

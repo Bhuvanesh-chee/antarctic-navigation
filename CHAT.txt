@@ -1,0 +1,106 @@
+CHAT — Deploy Antarctic Navigation to Render (Free Tier)
+========================================================
+
+STATUS
+------
+Build passes locally: GET /health → 200, GET / → 200.
+Commit: 01aa2f8 "port from env for Render"
+Remotes:
+  origin  → https://github.com/bhuvanesh-123/antarctic-navigation.git  (no token)
+  space   → https://huggingface.co/spaces/bhuvanesh-123/antarctic-navigation  (no token)
+GitHub push FAILED: "Repository not found." — the repo does not exist on GitHub yet.
+
+You must create the GitHub repo first, then push. Do these in order.
+
+STEP 1 — Create the GitHub repo (clicks)
+------------------------------------------
+1. Go to https://github.com/new
+2. Repository name: antarctic-navigation
+3. Owner: bhuvanesh-123
+4. Visibility: Public
+5. Do NOT check "Add a README" / ".gitignore" / "license" — your repo already has these.
+   (If you do check them, the push will conflict; better to leave them unchecked.)
+6. Click "Create repository"
+
+STEP 2 — Push to GitHub (commands, in C:\Users\cheed\antarctic-navigation)
+-----------------------------------------------------------------------------
+git remote add origin https://github.com/bhuvanesh-123/antarctic-navigation.git
+git push -u origin main
+
+If Git prompts for credentials:
+  - Username: bhuvanesh-123
+  - Password: paste a GitHub Personal Access Token with "repo" scope.
+    (GitHub no longer accepts account passwords for git push over HTTPS.)
+    Create one at: https://github.com/settings/tokens?type=beta
+    Scopes needed: "repo" (full control of private repositories).
+    Do NOT write the token into any file, commit, or remote URL.
+
+If the push succeeds, the repo is at:
+  https://github.com/bhuvanesh-123/antarctic-navigation
+
+STEP 3 — Deploy to Render (clicks)
+------------------------------------
+1. Go to https://dashboard.render.com/ → New + → Web Service.
+2. Connect your GitHub account if prompted.
+3. Select repo: bhuvanesh-123 / antarctic-navigation
+4. Configure:
+   - Name: antarctic-navigation
+   - Branch: main
+   - Root Directory: (leave blank — Dockerfile is at repo root)
+   - Runtime: Docker
+   - Build Command: (leave blank)
+   - Start Command: (leave blank)
+   - Instance Type: Free
+5. Environment Variables (Settings → Environment → add):
+   - PORT = 10000
+     (Render's free web service binds port 10000. entrypoint.sh reads PORT
+      from env via ${PORT:-7860}, so it picks up 10000 automatically.
+      If PORT is unset, uvicorn falls back to 7860 and Render can't reach it.)
+   - No other env vars needed. No secrets. Leaflet is keyless; the app is self-contained.
+6. Health Check:
+   - Enable health check
+   - Path: /health
+   - Port: 10000 (or leave default)
+   - Timeout: 10s
+7. Click "Create Web Service"
+8. Wait for the build (first build ~3-5 min). The dashboard shows the live URL when ready.
+
+STEP 4 — Verify (commands)
+----------------------------
+curl -i https://antarctic-navigation.onrender.com/health
+curl -i https://antarctic-navigation.onrender.com/
+
+Both should return HTTP 200. /health returns:
+  {"status":"ok","service":"antarctic-navigation","version":"0.1.0"}
+/ serves the built React frontend.
+
+FINAL PUBLIC URL (after first deploy)
+--------------------------------------
+https://antarctic-navigation.onrender.com
+
+Free-tier limitations
+---------------------
+- Sleeps after 15 minutes of no traffic. First request after sleep = 30-90s cold start.
+- No uptime guarantee.
+- Ephemeral disk: iceberg_catalog.db is re-seeded by entrypoint.sh on every boot
+  (from bundled USNIC CSVs if present; otherwise synthetic/demo data).
+- PORT must be set to 10000 in Render's environment variables, or the container
+  will try to bind 7860 and Render won't reach it.
+
+If the Render build fails
+--------------------------
+Check the Render build log:
+- Dockerfile COPY paths: Dockerfile expects backend/, backend/requirements.txt,
+  backend/entrypoint.sh, frontend/dist/ all at the repo root. If your repo
+  nests these, fix Dockerfile COPY paths — do NOT move source files.
+- frontend/dist/ must exist in the repo (it is committed). If missing:
+    cd frontend && npm run build
+    git add frontend/dist/ && git commit -m "rebuild frontend dist" && git push
+- backend/requirements.txt must exist at backend/requirements.txt in the repo.
+- backend/entrypoint.sh must be executable (Dockerfile does RUN chmod +x).
+
+No tokens in files
+-------------------
+The space and origin remote URLs contain no token. If Git asks for GitHub
+credentials during push, answer the prompt interactively — do not write the
+token into .gitconfig, .git-credentials, any file, or the remote URL.
