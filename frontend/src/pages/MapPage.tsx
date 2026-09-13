@@ -83,7 +83,7 @@ export default function MapPage() {
   };
 
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current || mapInstanceRef.current) return;
     const map = L.map(mapRef.current as HTMLElement, {
       center: ANTARCTICA_VIEW.center as L.LatLngExpression,
       zoom: ANTARCTICA_VIEW.zoom,
@@ -105,7 +105,7 @@ export default function MapPage() {
     seaIceLayerRef.current = L.layerGroup().addTo(map);
 
     return () => { map.remove(); };
-  }, []);
+  }, [loading]);
 
   useEffect(() => {
     (async () => {
@@ -331,14 +331,6 @@ export default function MapPage() {
     }
   }, [loc.state]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-[60vh]">
-        <div className="text-polar-400 text-sm">Loading Antarctic map…</div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col h-full gap-3">
       {/* Layer control */}
@@ -378,6 +370,11 @@ export default function MapPage() {
 
       {/* Map */}
       <div ref={mapRef} className="flex-1 rounded-xl border border-polar-700 bg-polar-900 overflow-hidden relative min-h-[50vh]" />
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-polar-950/60">
+          <div className="text-polar-400 text-sm">Loading Antarctic map…</div>
+        </div>
+      )}
 
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-4 text-[10px] text-polar-400 bg-polar-900 rounded-lg px-3 py-2 border border-polar-700">
